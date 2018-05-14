@@ -14,7 +14,7 @@ public class GlobalCounterRepository implements CounterRepository {
     private final SharedPreferences preferences;
 
     public GlobalCounterRepository(Context context) {
-        preferences = context.getSharedPreferences("com.baloota.ylytics.counters.global", Context.MODE_PRIVATE);
+        preferences = context.getSharedPreferences("com.baloota.blytics.counters.global", Context.MODE_PRIVATE);
     }
 
     @Override
