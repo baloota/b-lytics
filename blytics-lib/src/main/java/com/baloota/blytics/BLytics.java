@@ -54,4 +54,8 @@ public class BLytics {
         engine.updateCounter(name, type);
     }
 
+    public <T> void setProperty(String name, T value) {
+        engine.setProperty(name, value);
+    }
+
 }

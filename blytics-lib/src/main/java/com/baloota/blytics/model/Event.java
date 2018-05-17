@@ -16,6 +16,7 @@ public class Event {
     private final Bundle params = new Bundle();
     private final List<Counter> counters = new ArrayList<>();
     private final List<Counter> referencedCounters = new ArrayList<>();
+    private final List<Property> referencedProperties = new ArrayList<>();
 
     public static Event copyOf(Event event) {
         return new Event(event);
@@ -26,6 +27,7 @@ public class Event {
         this.params.putAll(src.params);
         this.counters.addAll(src.counters);
         this.referencedCounters.addAll(src.referencedCounters);
+        this.referencedProperties.addAll(src.referencedProperties);
     }
 
     public Event(String name) {
@@ -60,6 +62,12 @@ public class Event {
         return this;
     }
 
+    public <T> Event propertyValue(String propertyName, T defaultValue) {
+        referencedProperties.add(new Property(propertyName, defaultValue));
+        return this;
+    }
+
+
     public String getName() {
         return name;
     }
@@ -74,6 +82,10 @@ public class Event {
 
     public List<Counter> getReferencedCounters() {
         return referencedCounters;
+    }
+
+    public List<Property> getReferencedProperties() {
+        return referencedProperties;
     }
 
     public void track() {

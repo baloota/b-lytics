@@ -12,6 +12,7 @@ import android.util.Log;
 
 import com.baloota.blytics.model.Counter;
 import com.baloota.blytics.model.Event;
+import com.baloota.blytics.model.Property;
 import com.baloota.blytics.model.Session;
 import com.baloota.blytics.platforms.FacebookPlatform;
 import com.baloota.blytics.platforms.TestLogPlatform;
@@ -29,6 +30,7 @@ class BLyticsEngine {
 
     private final Application application;
     private final CounterRepository globalCounterRepository;
+    private final PropertiesRepository propertiesRepository;
 
     private Session session;
     private SessionThread sessionThread;
@@ -39,6 +41,7 @@ class BLyticsEngine {
         this.application = application;
 
         globalCounterRepository = new GlobalCounterRepository(application);
+        propertiesRepository = new PropertiesRepositoryImpl(application);
 
         sessionThread = new SessionThread(this);
 
@@ -95,9 +98,16 @@ class BLyticsEngine {
         addSessionParams(event);
         addCounters(event);
         addReferencedCounters(event);
+        addReferencedProperties(event);
 
         for (AnalyticsPlatform platform : platforms) {
             platform.track(event.getName(), event.getParams());
+        }
+    }
+
+    private void addReferencedProperties(Event event) {
+        for (Property property : event.getReferencedProperties()) {
+            event.setParam(property.getName(), propertiesRepository.getProperty(property.getName(), property.getValue()));
         }
     }
 
@@ -160,8 +170,6 @@ class BLyticsEngine {
         }
     }
 
-
-
     private void startLifecycleObserver() {
         ProcessLifecycleOwner.get().getLifecycle().addObserver(new LifecycleObserver() {
 
@@ -209,5 +217,9 @@ class BLyticsEngine {
                 break;
         }
 
+    }
+
+    public <T> void setProperty(String name, T value) {
+        propertiesRepository.setProperty(name, value);
     }
 }
