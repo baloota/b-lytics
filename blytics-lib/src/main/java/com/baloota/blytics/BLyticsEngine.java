@@ -83,7 +83,7 @@ class BLyticsEngine {
             sessionThread = new SessionThread(BLyticsEngine.this);
         }
 
-        sessionThread.sendEvent(event);
+        sessionThread.sendEvent(Event.copyOf(event));
     }
 
     private void addSessionParams(Event event) {
@@ -111,7 +111,7 @@ class BLyticsEngine {
                 case Counter.GLOBAL:
                     event.setParam(counter.getName(), globalCounterRepository.incrementCounter(counter).getValue());
                     break;
-                case Counter.DAILY:
+                case Counter.DAILY: {
 
                     Counter c = globalCounterRepository.getCounter(counter);
 
@@ -124,6 +124,19 @@ class BLyticsEngine {
                     event.setParam(counter.getName(), globalCounterRepository.incrementCounter(counter).getValue());
 
                     break;
+                }
+                case Counter.GET_VALUE: {
+                    Counter c = globalCounterRepository.getCounter(counter);
+
+                    if (c != null && c.getType() == Counter.DAILY) {
+                        if (!DateUtils.isToday(c.getTimestamp())) {
+                            globalCounterRepository.resetCounter(c);
+                        }
+                    }
+
+                    event.setParam(counter.getName(), c != null ? c.getValue() : 0);
+                    break;
+                }
             }
         }
 
@@ -154,4 +167,27 @@ class BLyticsEngine {
         });
     }
 
+    public void updateCounter(String name, int type) {
+        switch (type) {
+            case Counter.SESSION:
+                session.incrementCounter(null, name, type);
+                break;
+            case Counter.GLOBAL:
+                globalCounterRepository.incrementCounter(null, name, type);
+                break;
+            case Counter.DAILY:
+
+                Counter c = globalCounterRepository.getCounter(null, name);
+
+                if (c != null) {
+                    if (!DateUtils.isToday(c.getTimestamp())) {
+                        globalCounterRepository.resetCounter(c);
+                    }
+                }
+
+                globalCounterRepository.incrementCounter(null, name, type);
+                break;
+        }
+
+    }
 }

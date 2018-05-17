@@ -9,7 +9,7 @@ import com.google.gson.Gson;
 /**
  * Created by Sergey B on 11.05.2018.
  */
-public class GlobalCounterRepository implements CounterRepository {
+public class GlobalCounterRepository extends CounterRepository {
 
     private final SharedPreferences preferences;
 
@@ -18,51 +18,20 @@ public class GlobalCounterRepository implements CounterRepository {
     }
 
     @Override
-    public Counter getCounter(Counter counter) {
+    public Counter getCounter(String eventName, String counterName) {
 
-        if (preferences.contains(counter.getName())) {
-            String json = preferences.getString(counter.getName(), null);
+        if (preferences.contains(Counter.fullName(eventName, counterName))) {
+            String json = preferences.getString(Counter.fullName(eventName, counterName), null);
             return new Gson().fromJson(json, Counter.class);
         }
 
         return null;
     }
 
-    private void storeCounter(Counter c) {
+    @Override
+    protected void storeCounter(Counter c) {
         String json = new Gson().toJson(c);
-        preferences.edit().putString(c.getName(), json).apply();
+        preferences.edit().putString(c.getFullName(), json).apply();
     }
 
-
-    @Override
-    public Counter incrementCounter(Counter c) {
-
-        Counter counter = getCounter(c);
-
-        if (counter == null) {
-            counter = new Counter(c.getName(), c.getType());
-        }
-
-        counter.increment();
-        storeCounter(counter);
-        c.setValue(counter.getValue());
-
-        return c;
-    }
-
-    @Override
-    public Counter resetCounter(Counter c) {
-
-        Counter counter = getCounter(c);
-
-        if (counter == null) {
-            counter = new Counter(c.getName(), c.getType());
-        }
-
-        counter.setValue(0);
-        storeCounter(counter);
-        c.setValue(counter.getValue());
-
-        return c;
-    }
 }

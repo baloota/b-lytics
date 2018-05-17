@@ -32,7 +32,7 @@ public class BLytics {
 
     public synchronized BLytics getInstance() {
         if (INSTANCE == null) {
-            throw new IllegalStateException("Y-Lytics not initialized");
+            throw new IllegalStateException("B-Lytics not initialized");
         }
 
         return INSTANCE;
@@ -48,6 +48,10 @@ public class BLytics {
 
     public void track(String event, Bundle params) {
         engine.track(event, params);
+    }
+
+    public void updateCounter(String name, int type) {
+        engine.updateCounter(name, type);
     }
 
 }

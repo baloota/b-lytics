@@ -2,6 +2,8 @@ package com.baloota.blytics.model;
 
 import android.os.Bundle;
 
+import com.baloota.blytics.BLytics;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +15,16 @@ public class Event {
     private final String name;
     private final Bundle params = new Bundle();
     private final List<Counter> counters = new ArrayList<>();
+
+    public static Event copyOf(Event event) {
+        return new Event(event);
+    }
+
+    public Event(Event src) {
+        this.name = src.name;
+        this.params.putAll(src.params);
+        this.counters.addAll(src.counters);
+    }
 
     public Event(String name) {
         this.name = name;
@@ -33,7 +45,12 @@ public class Event {
     }
 
     public Event count(String name, int type) {
-        counters.add(new Counter(name, type));
+        counters.add(new Counter(this.name, name, type));
+        return this;
+    }
+
+    public Event getCountValue(String eventName, String name) {
+        counters.add(new Counter(eventName, name, Counter.GET_VALUE));
         return this;
     }
 
@@ -47,5 +64,9 @@ public class Event {
 
     public List<Counter> getCounters() {
         return counters;
+    }
+
+    public void track() {
+        BLytics.getLogger().track(this);
     }
 }

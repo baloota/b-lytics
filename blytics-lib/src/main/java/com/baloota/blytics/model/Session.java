@@ -9,7 +9,7 @@ import java.util.UUID;
 /**
  * Created by Sergey B on 10.05.2018.
  */
-public class Session implements CounterRepository {
+public class Session extends CounterRepository {
 
     private Map<String, Counter> counters = new HashMap<>();
 
@@ -24,39 +24,17 @@ public class Session implements CounterRepository {
     }
 
     @Override
+    public Counter getCounter(String eventName, String counterName) {
+        return counters.get(Counter.fullName(eventName, counterName));
+    }
+
+    @Override
     public Counter getCounter(Counter c) {
-        return counters.get(c.getName());
+        return getCounter(c.getEventName(), c.getName());
     }
 
     @Override
-    public Counter incrementCounter(Counter c) {
-
-        Counter counter = counters.get(c.getName());
-
-        if (counter == null) {
-            counter = new Counter(c.getName(), c.getType());
-        }
-
-        counter.increment();
-        counters.put(counter.getName(), counter);
-        c.setValue(counter.getValue());
-
-        return c;
-    }
-
-    @Override
-    public Counter resetCounter(Counter c) {
-
-        Counter counter = counters.get(c.getName());
-
-        if (counter == null) {
-            counter = new Counter(c.getName(), c.getType());
-        }
-
-        counter.setValue(0);
-        counters.put(counter.getName(), counter);
-        c.setValue(counter.getValue());
-
-        return c;
+    protected void storeCounter(Counter counter) {
+        counters.put(counter.getFullName(), counter);
     }
 }
