@@ -15,6 +15,7 @@ public class Event {
     private final String name;
     private final Bundle params = new Bundle();
     private final List<Counter> counters = new ArrayList<>();
+    private final List<Counter> referencedCounters = new ArrayList<>();
 
     public static Event copyOf(Event event) {
         return new Event(event);
@@ -24,6 +25,7 @@ public class Event {
         this.name = src.name;
         this.params.putAll(src.params);
         this.counters.addAll(src.counters);
+        this.referencedCounters.addAll(src.referencedCounters);
     }
 
     public Event(String name) {
@@ -49,8 +51,12 @@ public class Event {
         return this;
     }
 
-    public Event getCountValue(String eventName, String name) {
-        counters.add(new Counter(eventName, name, Counter.GET_VALUE));
+    public Event counterValue(String name) {
+        return counterValue(null, name);
+    }
+
+    public Event counterValue(String eventName, String name) {
+        referencedCounters.add(new Counter(eventName, name, Counter.UNDEFINED));
         return this;
     }
 
@@ -64,6 +70,10 @@ public class Event {
 
     public List<Counter> getCounters() {
         return counters;
+    }
+
+    public List<Counter> getReferencedCounters() {
+        return referencedCounters;
     }
 
     public void track() {

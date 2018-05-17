@@ -93,18 +93,21 @@ class BLyticsEngine {
     void sendToPlatforms(Event event) {
 
         addSessionParams(event);
-        addCounterValues(event);
+        addCounters(event);
+        addReferencedCounters(event);
 
         for (AnalyticsPlatform platform : platforms) {
             platform.track(event.getName(), event.getParams());
         }
     }
 
-    private void addCounterValues(Event event) {
+    private void addCounters(Event event) {
 
         for (Counter counter : event.getCounters()) {
 
-            switch (counter.getType()) {
+            switch (counter.getScope()) {
+                case Counter.UNDEFINED:
+                    break;
                 case Counter.SESSION:
                     event.setParam(counter.getName(), session.incrementCounter(counter).getValue());
                     break;
@@ -125,22 +128,39 @@ class BLyticsEngine {
 
                     break;
                 }
-                case Counter.GET_VALUE: {
-                    Counter c = globalCounterRepository.getCounter(counter);
-
-                    if (c != null && c.getType() == Counter.DAILY) {
-                        if (!DateUtils.isToday(c.getTimestamp())) {
-                            globalCounterRepository.resetCounter(c);
-                        }
-                    }
-
-                    event.setParam(counter.getName(), c != null ? c.getValue() : 0);
-                    break;
-                }
             }
         }
 
     }
+
+    private void addReferencedCounters(Event event) {
+
+        for (Counter counter : event.getReferencedCounters()) {
+
+            CounterRepository repository = globalCounterRepository;
+
+            if (session.hasCounter(counter)) {
+                repository = session;
+            }
+
+            Counter c = repository.getCounter(counter);
+
+            if (c != null && c.getScope() == Counter.DAILY) {
+                if (!DateUtils.isToday(c.getTimestamp())) {
+                    repository.resetCounter(c);
+                }
+            }
+
+            if (event.getParams().containsKey(counter.getName())) {
+                event.setParam(counter.getFullName(), c != null ? c.getValue() : 0);
+            } else {
+                event.setParam(counter.getName(), c != null ? c.getValue() : 0);
+            }
+
+        }
+    }
+
+
 
     private void startLifecycleObserver() {
         ProcessLifecycleOwner.get().getLifecycle().addObserver(new LifecycleObserver() {

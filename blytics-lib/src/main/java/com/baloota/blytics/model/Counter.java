@@ -1,28 +1,35 @@
 package com.baloota.blytics.model;
 
+import android.support.annotation.IntDef;
 import android.text.TextUtils;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Created by Sergey B on 11.05.2018.
  */
 public class Counter {
 
-    public static final int GET_VALUE = -1;
-
+    public static final int UNDEFINED = -1;
     public static final int SESSION = 1;
     public static final int GLOBAL = 2;
     public static final int DAILY = 3;
 
+    @IntDef({SESSION, GLOBAL, DAILY, UNDEFINED})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface Scope {}
+
     private final String eventName;
     private final String name;
-    private final int type;
+    private final @Scope int scope;
     private int value;
     private long timestamp;
 
-    public Counter(String eventName, String name, int type) {
+    public Counter(String eventName, String name, @Scope int scope) {
         this.eventName = eventName;
         this.name = name;
-        this.type = type;
+        this.scope = scope;
     }
 
     public static String fullName(String eventName, String counterName) {
@@ -47,8 +54,8 @@ public class Counter {
         return fullName(eventName, name);
     }
 
-    public int getType() {
-        return type;
+    public @Scope int getScope() {
+        return scope;
     }
 
     public int getValue() {

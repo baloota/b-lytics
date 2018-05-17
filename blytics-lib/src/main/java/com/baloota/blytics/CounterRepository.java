@@ -13,12 +13,16 @@ public abstract class CounterRepository {
         return getCounter(counter.getEventName(), counter.getName());
     }
 
+    public boolean hasCounter(Counter c) {
+        return getCounter(c) != null;
+    }
+
     public Counter incrementCounter(Counter c) {
 
         Counter counter = getCounter(c);
 
         if (counter == null) {
-            counter = new Counter(c.getEventName(), c.getName(), c.getType());
+            counter = new Counter(c.getEventName(), c.getName(), c.getScope());
         }
 
         counter.increment();
@@ -46,7 +50,7 @@ public abstract class CounterRepository {
         Counter counter = getCounter(c);
 
         if (counter == null) {
-            counter = new Counter(c.getEventName(), c.getName(), c.getType());
+            counter = new Counter(c.getEventName(), c.getName(), c.getScope());
         }
 
         counter.setValue(0);
