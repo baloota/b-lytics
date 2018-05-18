@@ -1,6 +1,7 @@
 package com.baloota.blytics.model;
 
 import android.os.Bundle;
+import android.util.Pair;
 
 import com.baloota.blytics.BLytics;
 
@@ -15,7 +16,7 @@ public class Event {
     private final String name;
     private final Bundle params = new Bundle();
     private final List<Counter> counters = new ArrayList<>();
-    private final List<Counter> referencedCounters = new ArrayList<>();
+    private final List<Pair<String, Counter>> referencedCounters = new ArrayList<>();
     private final List<Property> referencedProperties = new ArrayList<>();
 
     public static Event copyOf(Event event) {
@@ -54,11 +55,16 @@ public class Event {
     }
 
     public Event counterValue(String name) {
-        return counterValue(null, name);
+        return counterValue(name,null, name);
     }
 
-    public Event counterValue(String eventName, String name) {
-        referencedCounters.add(new Counter(eventName, name, Counter.UNDEFINED));
+    public Event counterValue(String parameterName, String name) {
+        return counterValue(parameterName,null, name);
+    }
+
+    public Event counterValue(String parameterName, String eventName, String name) {
+        Pair<String, Counter> item = new Pair<>(parameterName, new Counter(eventName, name, Counter.UNDEFINED));
+        referencedCounters.add(item);
         return this;
     }
 
@@ -80,7 +86,7 @@ public class Event {
         return counters;
     }
 
-    public List<Counter> getReferencedCounters() {
+    public List<Pair<String, Counter>> getReferencedCounters() {
         return referencedCounters;
     }
 

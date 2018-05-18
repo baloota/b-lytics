@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
 import android.util.Log;
+import android.util.Pair;
 
 import com.baloota.blytics.model.Counter;
 import com.baloota.blytics.model.Event;
@@ -157,7 +158,10 @@ class BLyticsEngine {
 
     private void addReferencedCounters(Event event) {
 
-        for (Counter counter : event.getReferencedCounters()) {
+        for (Pair<String, Counter> item : event.getReferencedCounters()) {
+
+            String parameterName = item.first;
+            Counter counter = item.second;
 
             CounterRepository repository = globalCounterRepository;
 
@@ -173,12 +177,7 @@ class BLyticsEngine {
                 }
             }
 
-            if (event.getParams().containsKey(counter.getName())) {
-                event.setParam(counter.getFullName(), c != null ? c.getValue() : 0);
-            } else {
-                event.setParam(counter.getName(), c != null ? c.getValue() : 0);
-            }
-
+            event.setParam(parameterName, c != null ? c.getValue() : 0);
         }
     }
 
