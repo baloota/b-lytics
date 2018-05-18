@@ -17,6 +17,7 @@ import java.util.List;
 class SessionThread extends HandlerThread {
 
     private static final int MSG_EVENT = 1;
+    private static final int MSG_EVENT_PERIODIC = 2;
 
     private final BLyticsEngine engine;
 
@@ -33,6 +34,9 @@ class SessionThread extends HandlerThread {
     }
 
     public void stopSession() {
+
+        handler.removeMessages(MSG_EVENT_PERIODIC);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             quitSafely();
         } else {
@@ -45,6 +49,21 @@ class SessionThread extends HandlerThread {
         Message msg = new Message();
         msg.what = MSG_EVENT;
         msg.obj = event;
+
+        if (handler != null) {
+            handler.sendMessage(msg);
+        } else {
+            messageBuf.add(msg);
+        }
+
+    }
+
+    public synchronized void sendPeriodicEvent(Event event, int interval) {
+
+        Message msg = new Message();
+        msg.what = MSG_EVENT_PERIODIC;
+        msg.obj = event;
+        msg.arg1 = interval;
 
         if (handler != null) {
             handler.sendMessage(msg);
@@ -67,8 +86,14 @@ class SessionThread extends HandlerThread {
                 public void handleMessage(Message msg) {
 
                     switch (msg.what) {
+
                         case MSG_EVENT:
                             engine.sendToPlatforms((Event) msg.obj);
+                            break;
+
+                        case MSG_EVENT_PERIODIC:
+                            engine.sendToPlatforms((Event) msg.obj);
+                            scheduleNextMessage(msg);
                             break;
                     }
 
@@ -80,6 +105,16 @@ class SessionThread extends HandlerThread {
             notifyAll();
         }
 
+    }
+
+    private void scheduleNextMessage(Message msg) {
+
+        Message m = new Message();
+        m.what = MSG_EVENT_PERIODIC;
+        m.obj = msg.obj;
+        m.arg1 = msg.arg1;
+
+        handler.sendMessageDelayed(m, msg.arg1);
     }
 
     private void flushMessageBuffer() {

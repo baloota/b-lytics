@@ -48,7 +48,7 @@ public class Event {
         return this;
     }
 
-    public Event count(String name, int type) {
+    public Event count(String name, @Counter.Scope int type) {
         counters.add(new Counter(this.name, name, type));
         return this;
     }

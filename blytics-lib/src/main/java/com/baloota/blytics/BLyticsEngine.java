@@ -89,6 +89,18 @@ class BLyticsEngine {
         sessionThread.sendEvent(Event.copyOf(event));
     }
 
+    public void track(String event, Bundle params, int interval) {
+        track(new Event(event, params), interval);
+    }
+
+    public void track(@NonNull Event event, int interval) {
+        if (sessionThread == null) {
+            sessionThread = new SessionThread(BLyticsEngine.this);
+        }
+
+        sessionThread.sendPeriodicEvent(Event.copyOf(event), interval);
+    }
+
     private void addSessionParams(Event event) {
         event.setParam(PARAM_SESSION_ID, session.getId());
     }

@@ -50,6 +50,18 @@ public class BLytics {
         engine.track(event, params);
     }
 
+    public void track(@NonNull Event event, int interval) {
+        engine.track(event, interval);
+    }
+
+    public void track(String event, int interval) {
+        track(event, new Bundle(), interval);
+    }
+
+    public void track(String event, Bundle params, int interval) {
+        engine.track(event, params, interval);
+    }
+
     public void updateCounter(String name, int type) {
         engine.updateCounter(name, type);
     }
