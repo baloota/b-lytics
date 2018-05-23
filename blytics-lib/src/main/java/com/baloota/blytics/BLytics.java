@@ -70,4 +70,11 @@ public class BLytics {
         engine.setProperty(name, value);
     }
 
+    public <T> void setUserProperty(String name, T value) {
+        engine.setUserProperty(name, value);
+    }
+
+    public String getUserProperty(String name) {
+        return engine.getUserProperty(name);
+    }
 }

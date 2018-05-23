@@ -26,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
         BLytics.getLogger().updateCounter("Some Click", Counter.GLOBAL);
 
         BLytics.getLogger().setProperty("Last button", "Button 1");
+
+        BLytics.getLogger().setUserProperty("UserName", "Buttono One");
     }
 
     public void onButton2(View view) {
@@ -37,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
                 .track();
 
         BLytics.getLogger().setProperty("Last button", "Button 2");
+
+        BLytics.getLogger().setUserProperty("UserName", "Buttono Two");
     }
 
     public void onButton3(View view) {
@@ -47,5 +51,7 @@ public class MainActivity extends AppCompatActivity {
                 .counterValue("Some Click")
                 .propertyValue("Last button", "none")
                 .track();
+
+        BLytics.getLogger().setUserProperty("UserName", "Buttono Three");
     }
 }

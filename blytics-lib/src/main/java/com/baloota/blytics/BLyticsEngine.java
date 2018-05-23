@@ -21,12 +21,15 @@ import com.baloota.blytics.platforms.TestLogPlatform;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Sergey B on 10.05.2018.
  */
 class BLyticsEngine {
 
+    private static final String PARAM_SESSION_EVENT = "com.baloota.blytics.#session";
+    private static final String PARAM_SESSION_NUMBER = "#session";
     private static final String PARAM_SESSION_ID = "SessionId";
 
     private final Application application;
@@ -50,12 +53,16 @@ class BLyticsEngine {
     }
 
     public void initialize() {
-        Log.i("YLytics", "Initializing...");
+        Log.i("BLytics", "Initializing...");
 
         platforms = getSupportedPlatforms();
 
         for (AnalyticsPlatform platform : platforms) {
-            platform.initialize(application);
+            try {
+                platform.initialize(application);
+            } catch (Throwable e) {
+                Log.e("BLytics", "Failed to initialize platform");
+            }
         }
     }
 
@@ -103,11 +110,13 @@ class BLyticsEngine {
     }
 
     private void addSessionParams(Event event) {
-        event.setParam(PARAM_SESSION_ID, session.getId());
+        Counter c = globalCounterRepository.getCounter(PARAM_SESSION_EVENT, PARAM_SESSION_NUMBER);
+        event.setParam(PARAM_SESSION_NUMBER, c.getValue());
     }
 
     void sendToPlatforms(Event event) {
 
+        addUserProperties(event);
         addSessionParams(event);
         addCounters(event);
         addReferencedCounters(event);
@@ -115,6 +124,14 @@ class BLyticsEngine {
 
         for (AnalyticsPlatform platform : platforms) {
             platform.track(event.getName(), event.getParams());
+        }
+    }
+
+    private void addUserProperties(Event event) {
+        final Map<String, String> userProperties = propertiesRepository.getUserProperties();
+
+        for (String key : userProperties.keySet()) {
+            event.setParam(key, userProperties.get(key));
         }
     }
 
@@ -193,6 +210,8 @@ class BLyticsEngine {
                     sessionThread = new SessionThread(BLyticsEngine.this);
                 }
 
+                globalCounterRepository.incrementCounter(PARAM_SESSION_EVENT, PARAM_SESSION_NUMBER, Counter.GLOBAL);
+
                 sessionThread.startSession();
             }
 
@@ -232,5 +251,13 @@ class BLyticsEngine {
 
     public <T> void setProperty(String name, T value) {
         propertiesRepository.setProperty(name, value);
+    }
+
+    public <T> void setUserProperty(String name, T value) {
+        propertiesRepository.setUserProperty(name, value);
+    }
+
+    public String getUserProperty(String name) {
+        return propertiesRepository.getUserProperty(name, null);
     }
 }
