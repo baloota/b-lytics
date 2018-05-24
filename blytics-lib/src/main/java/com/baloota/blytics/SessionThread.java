@@ -19,6 +19,8 @@ class SessionThread extends HandlerThread {
     private static final int MSG_EVENT = 1;
     private static final int MSG_EVENT_PERIODIC = 2;
 
+    private static final int FLAG_EVENT_SCHEDULE = 1;
+
     private final BLyticsEngine engine;
 
     private Handler handler;
@@ -64,6 +66,7 @@ class SessionThread extends HandlerThread {
         msg.what = MSG_EVENT_PERIODIC;
         msg.obj = event;
         msg.arg1 = interval;
+        msg.arg2 = FLAG_EVENT_SCHEDULE;
 
         if (handler != null) {
             handler.sendMessage(msg);
@@ -92,7 +95,9 @@ class SessionThread extends HandlerThread {
                             break;
 
                         case MSG_EVENT_PERIODIC:
-                            engine.sendToPlatforms((Event) msg.obj);
+                            if (msg.arg2 != FLAG_EVENT_SCHEDULE) {
+                                engine.sendToPlatforms((Event) msg.obj);
+                            }
                             scheduleNextMessage(msg);
                             break;
                     }

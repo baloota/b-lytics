@@ -1,7 +1,8 @@
 package com.baloota.blytics;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.text.format.DateUtils;
 import android.view.View;
 
 import com.baloota.blytics.model.Counter;
@@ -13,6 +14,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        BLytics.getLogger().track("MINUTE_MARK", (int) DateUtils.MINUTE_IN_MILLIS);
     }
 
     public void onButton1(View view) {
