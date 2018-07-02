@@ -25,9 +25,13 @@ public class BLytics {
         return INSTANCE;
     }
 
-    public static void init(Application application) {
+    public static void init(Application application, String eventPrefix) {
         INSTANCE = new BLytics(application);
-        INSTANCE.engine.initialize();
+        INSTANCE.engine.initialize(eventPrefix);
+    }
+
+    public static void init(Application application) {
+        init(application, null);
     }
 
     public synchronized BLytics getInstance() {
@@ -76,5 +80,13 @@ public class BLytics {
 
     public String getUserProperty(String name) {
         return engine.getUserProperty(name);
+    }
+
+    public void setEventsPrefix(String prefix) {
+        engine.setEventsPrefix(prefix);
+    }
+
+    public void setUserId(@NonNull String userId) {
+        engine.setUserId(userId);
     }
 }

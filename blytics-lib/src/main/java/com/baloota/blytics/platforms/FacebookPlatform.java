@@ -6,7 +6,10 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.baloota.blytics.AnalyticsPlatform;
+import com.baloota.blytics.BuildConfig;
+import com.baloota.blytics.model.Session;
 import com.facebook.FacebookSdk;
+import com.facebook.LoggingBehavior;
 import com.facebook.appevents.AppEventsLogger;
 
 /**
@@ -15,9 +18,11 @@ import com.facebook.appevents.AppEventsLogger;
 public class FacebookPlatform extends AnalyticsPlatform {
 
     private AppEventsLogger logger;
+    private Application application;
 
     @Override
     public boolean isEnabled(@NonNull Application application) {
+        this.application = application;
 
         boolean enabled = false;
 
@@ -31,11 +36,16 @@ public class FacebookPlatform extends AnalyticsPlatform {
 
     @Override
     public void initialize(@NonNull Application application) {
-        Log.i("FacebookPlatform", "Initialized");
-
         if (FacebookSdk.isInitialized()) {
             AppEventsLogger.activateApp(application);
             logger = AppEventsLogger.newLogger(application);
+
+            if (BuildConfig.DEBUG) {
+                FacebookSdk.setIsDebugEnabled(true);
+                FacebookSdk.addLoggingBehavior(LoggingBehavior.APP_EVENTS);
+            }
+
+            Log.i("FacebookPlatform", "Initialized");
         } else {
             throw new IllegalStateException("Please initialize Facebook SDK");
         }
@@ -45,5 +55,26 @@ public class FacebookPlatform extends AnalyticsPlatform {
     @Override
     public void track(@NonNull String event, @NonNull Bundle params) {
         logger.logEvent(event, params);
+    }
+
+    @Override
+    public void onSessionStart(Session session) {
+        AppEventsLogger.activateApp(application);
+    }
+
+    @Override
+    public void onSessionFinish(Session session) {
+    }
+
+    @Override
+    public void setUserId(@NonNull String userId) {
+        AppEventsLogger.setUserID(userId.length() > 100 ? userId.substring(0, 100) : userId);
+    }
+
+    @Override
+    public void setUserProperty(String property, String value) {
+        Bundle params = new Bundle();
+        params.putString(property, value);
+        AppEventsLogger.updateUserProperties(params, null);
     }
 }

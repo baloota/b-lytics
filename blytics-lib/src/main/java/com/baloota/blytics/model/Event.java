@@ -45,7 +45,13 @@ public class Event {
     }
 
     public Event setParam(String param, String value) {
-        params.putString(param, value);
+        params.putString(param, String.valueOf(value));
+        return this;
+    }
+
+    public Event setParams(Bundle params) {
+        this.params.clear();
+        this.params.putAll(params);
         return this;
     }
 

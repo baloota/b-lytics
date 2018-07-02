@@ -7,6 +7,7 @@ import android.arch.lifecycle.OnLifecycleEvent;
 import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.util.Pair;
@@ -16,12 +17,12 @@ import com.baloota.blytics.model.Event;
 import com.baloota.blytics.model.Property;
 import com.baloota.blytics.model.Session;
 import com.baloota.blytics.platforms.FacebookPlatform;
+import com.baloota.blytics.platforms.FirebasePlatform;
 import com.baloota.blytics.platforms.TestLogPlatform;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Sergey B on 10.05.2018.
@@ -29,7 +30,7 @@ import java.util.Map;
 class BLyticsEngine {
 
     private static final String PARAM_SESSION_EVENT = "com.baloota.blytics.#session";
-    private static final String PARAM_SESSION_NUMBER = "#session";
+    private static final String PARAM_SESSION_NUMBER = "session";
     private static final String PARAM_SESSION_ID = "SessionId";
 
     private final Application application;
@@ -40,6 +41,7 @@ class BLyticsEngine {
     private SessionThread sessionThread;
 
     private List<AnalyticsPlatform> platforms = Collections.emptyList();
+    private String prefix;
 
     BLyticsEngine(Application application) {
         this.application = application;
@@ -52,8 +54,10 @@ class BLyticsEngine {
         startLifecycleObserver();
     }
 
-    public void initialize() {
+    public void initialize(String eventPrefix) {
         Log.i("BLytics", "Initializing...");
+
+        prefix = eventPrefix;
 
         platforms = getSupportedPlatforms();
 
@@ -81,6 +85,7 @@ class BLyticsEngine {
     private List<AnalyticsPlatform> getPlatforms() {
         List<AnalyticsPlatform> platforms = new ArrayList<>();
         platforms.add(new FacebookPlatform());
+        platforms.add(new FirebasePlatform());
         platforms.add(new TestLogPlatform());
         return platforms;
     }
@@ -116,22 +121,19 @@ class BLyticsEngine {
 
     void sendToPlatforms(Event event) {
 
-        addUserProperties(event);
         addSessionParams(event);
         addCounters(event);
         addReferencedCounters(event);
         addReferencedProperties(event);
 
-        for (AnalyticsPlatform platform : platforms) {
-            platform.track(event.getName(), event.getParams());
+        String eventName = event.getName();
+
+        if (!TextUtils.isEmpty(prefix)) {
+            eventName = prefix + eventName;
         }
-    }
 
-    private void addUserProperties(Event event) {
-        final Map<String, String> userProperties = propertiesRepository.getUserProperties();
-
-        for (String key : userProperties.keySet()) {
-            event.setParam(key, userProperties.get(key));
+        for (AnalyticsPlatform platform : platforms) {
+            platform.track(eventName, event.getParams());
         }
     }
 
@@ -203,7 +205,7 @@ class BLyticsEngine {
 
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
             public void onEnterForeground() {
-                Log.i("YLytics", "App is FOREGROUND");
+                Log.i("BLytics", "App is FOREGROUND");
                 session = new Session();
 
                 if (sessionThread == null) {
@@ -217,9 +219,10 @@ class BLyticsEngine {
 
             @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
             public void onEnterBackground() {
-                Log.i("YLytics", "App is BACKGROUND");
+                Log.i("BLytics", "App is BACKGROUND");
                 sessionThread.stopSession();
                 sessionThread = null;
+                onSessionFinished();
             }
 
         });
@@ -255,9 +258,36 @@ class BLyticsEngine {
 
     public <T> void setUserProperty(String name, T value) {
         propertiesRepository.setUserProperty(name, value);
+
+        for (AnalyticsPlatform platform : platforms) {
+            platform.setUserProperty(name, String.valueOf(value));
+        }
+
     }
 
     public String getUserProperty(String name) {
         return propertiesRepository.getUserProperty(name, null);
+    }
+
+    public void setEventsPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+
+    public void onSessionStarted() {
+        for (AnalyticsPlatform platform : platforms) {
+            platform.onSessionStart(session);
+        }
+    }
+
+    private void onSessionFinished() {
+        for (AnalyticsPlatform platform : platforms) {
+            platform.onSessionFinish(session);
+        }
+    }
+
+    public void setUserId(@NonNull String userId) {
+        for (AnalyticsPlatform platform : platforms) {
+            platform.setUserId(userId);
+        }
     }
 }

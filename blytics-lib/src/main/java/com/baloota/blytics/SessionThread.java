@@ -81,6 +81,8 @@ class SessionThread extends HandlerThread {
 
         Log.d("SessionThread", "Session thread ready");
 
+        engine.onSessionStarted();
+
         synchronized (this) {
 
             handler = new Handler(getLooper()) {
