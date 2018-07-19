@@ -9,6 +9,8 @@ import com.baloota.blytics.AnalyticsPlatform;
 import com.baloota.blytics.BuildConfig;
 import com.baloota.blytics.model.Session;
 import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.facebook.LoggingBehavior;
 import com.facebook.appevents.AppEventsLogger;
 
@@ -75,6 +77,11 @@ public class FacebookPlatform extends AnalyticsPlatform {
     public void setUserProperty(String property, String value) {
         Bundle params = new Bundle();
         params.putString(property, value);
-        AppEventsLogger.updateUserProperties(params, null);
+        AppEventsLogger.updateUserProperties(params, new GraphRequest.Callback() {
+            @Override
+            public void onCompleted(GraphResponse response) {
+                Log.i("FacebookPlatform", "User property update result: " + response.getRawResponse());
+            }
+        });
     }
 }
