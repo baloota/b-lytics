@@ -37,7 +37,9 @@ class SessionThread extends HandlerThread {
 
     public void stopSession() {
 
-        handler.removeMessages(MSG_EVENT_PERIODIC);
+        if (handler != null) {
+            handler.removeMessages(MSG_EVENT_PERIODIC);
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             quitSafely();
