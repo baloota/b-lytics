@@ -14,8 +14,10 @@ public class Session extends CounterRepository {
     private Map<String, Counter> counters = new HashMap<>();
 
     private final String sessionId;
+    private final boolean isForegroundSession;
 
-    public Session() {
+    public Session(boolean isForegroundSession) {
+        this.isForegroundSession = isForegroundSession;
         sessionId = UUID.randomUUID().toString();
     }
 
@@ -36,5 +38,9 @@ public class Session extends CounterRepository {
     @Override
     protected void storeCounter(Counter counter) {
         counters.put(counter.getFullName(), counter);
+    }
+
+    public boolean isForegroundSession() {
+        return isForegroundSession;
     }
 }

@@ -42,6 +42,14 @@ public class BLytics {
         return INSTANCE;
     }
 
+    public void startSession(boolean isAppInForeground) {
+        engine.startSession(isAppInForeground);
+    };
+
+    public void stopSession() {
+        engine.stopSession();
+    };
+
     public void track(@NonNull Event event) {
         engine.track(event);
     }

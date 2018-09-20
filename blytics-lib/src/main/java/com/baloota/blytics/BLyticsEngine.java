@@ -32,6 +32,7 @@ class BLyticsEngine {
     private static final String PARAM_SESSION_EVENT = "com.baloota.blytics.#session";
     private static final String PARAM_SESSION_NUMBER = "session";
     private static final String PARAM_SESSION_ID = "SessionId";
+    private static final String PARAM_SESSION_FOREGROUND = "isForegroundSession";
 
     private final Application application;
     private final CounterRepository globalCounterRepository;
@@ -117,6 +118,7 @@ class BLyticsEngine {
     private void addSessionParams(Event event) {
         Counter c = globalCounterRepository.getCounter(PARAM_SESSION_EVENT, PARAM_SESSION_NUMBER);
         event.setParam(PARAM_SESSION_NUMBER, c.getValue());
+        event.setParam(PARAM_SESSION_FOREGROUND, session.isForegroundSession());
     }
 
     void sendToPlatforms(Event event) {
@@ -206,23 +208,13 @@ class BLyticsEngine {
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
             public void onEnterForeground() {
                 Log.i("BLytics", "App is FOREGROUND");
-                session = new Session();
-
-                if (sessionThread == null) {
-                    sessionThread = new SessionThread(BLyticsEngine.this);
-                }
-
-                globalCounterRepository.incrementCounter(PARAM_SESSION_EVENT, PARAM_SESSION_NUMBER, Counter.GLOBAL);
-
-                sessionThread.startSession();
+                startSession(true);
             }
 
             @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
             public void onEnterBackground() {
                 Log.i("BLytics", "App is BACKGROUND");
-                sessionThread.stopSession();
-                sessionThread = null;
-                onSessionFinished();
+                stopSession();
             }
 
         });
@@ -289,5 +281,25 @@ class BLyticsEngine {
         for (AnalyticsPlatform platform : platforms) {
             platform.setUserId(userId);
         }
+    }
+
+    public void startSession(boolean isForegroundSession) {
+        session = new Session(isForegroundSession);
+
+        if (sessionThread == null) {
+            sessionThread = new SessionThread(BLyticsEngine.this);
+        }
+
+        if (isForegroundSession) {
+            globalCounterRepository.incrementCounter(PARAM_SESSION_EVENT, PARAM_SESSION_NUMBER, Counter.GLOBAL);
+        }
+
+        sessionThread.startSession();
+    }
+
+    public void stopSession() {
+        sessionThread.stopSession();
+        sessionThread = null;
+        onSessionFinished();
     }
 }
