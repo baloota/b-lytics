@@ -3,6 +3,8 @@ package com.baloota.blytics;
 import android.app.Application;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LifecycleService;
 import android.arch.lifecycle.OnLifecycleEvent;
 import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.os.Bundle;
@@ -44,7 +46,7 @@ class BLyticsEngine {
     private List<AnalyticsPlatform> platforms = Collections.emptyList();
     private String prefix;
 
-    BLyticsEngine(Application application) {
+    BLyticsEngine(Application application, LifecycleOwner lifecycleOwner) {
         this.application = application;
 
         globalCounterRepository = new GlobalCounterRepository(application);
@@ -52,7 +54,7 @@ class BLyticsEngine {
 
         sessionThread = new SessionThread(this);
 
-        startLifecycleObserver();
+        startLifecycleObserver(lifecycleOwner);
     }
 
     public void initialize(String eventPrefix) {
@@ -202,13 +204,23 @@ class BLyticsEngine {
         }
     }
 
-    private void startLifecycleObserver() {
-        ProcessLifecycleOwner.get().getLifecycle().addObserver(new LifecycleObserver() {
+    private void startLifecycleObserver(LifecycleOwner lifecycleOwner) {
+
+        final boolean isForegroundSession;
+
+        if (lifecycleOwner == null) {
+            lifecycleOwner = ProcessLifecycleOwner.get();
+            isForegroundSession = true;
+        } else {
+            isForegroundSession = ! (lifecycleOwner instanceof LifecycleService);
+        }
+
+        lifecycleOwner.getLifecycle().addObserver(new LifecycleObserver() {
 
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
             public void onEnterForeground() {
                 Log.i("BLytics", "App is FOREGROUND");
-                startSession(true);
+                startSession(isForegroundSession);
             }
 
             @OnLifecycleEvent(Lifecycle.Event.ON_STOP)

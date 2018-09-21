@@ -1,6 +1,7 @@
 package com.baloota.blytics;
 
 import android.app.Application;
+import android.arch.lifecycle.LifecycleOwner;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
@@ -16,9 +17,9 @@ public class BLytics {
     private final Application application;
     private final BLyticsEngine engine;
 
-    private BLytics(Application application) {
+    private BLytics(Application application, LifecycleOwner lifecycleOwner) {
         this.application = application;
-        this.engine = new BLyticsEngine(application);
+        this.engine = new BLyticsEngine(application, lifecycleOwner);
     }
 
     public static BLytics getLogger() {
@@ -26,7 +27,12 @@ public class BLytics {
     }
 
     public static void init(Application application, String eventPrefix) {
-        INSTANCE = new BLytics(application);
+        INSTANCE = new BLytics(application, null);
+        INSTANCE.engine.initialize(eventPrefix);
+    }
+
+    public static void init(Application application, LifecycleOwner lifecycleOwner, String eventPrefix) {
+        INSTANCE = new BLytics(application, lifecycleOwner);
         INSTANCE.engine.initialize(eventPrefix);
     }
 
