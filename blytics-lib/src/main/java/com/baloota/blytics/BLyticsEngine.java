@@ -118,8 +118,13 @@ class BLyticsEngine {
     }
 
     private void addSessionParams(Event event) {
+
         Counter c = globalCounterRepository.getCounter(PARAM_SESSION_EVENT, PARAM_SESSION_NUMBER);
-        event.setParam(PARAM_SESSION_NUMBER, c.getValue());
+
+        if (c != null) {
+            event.setParam(PARAM_SESSION_NUMBER, c.getValue());
+        }
+
         event.setParam(PARAM_SESSION_FOREGROUND, session.isForegroundSession());
     }
 
