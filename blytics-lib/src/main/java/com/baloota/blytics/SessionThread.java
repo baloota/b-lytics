@@ -95,12 +95,12 @@ class SessionThread extends HandlerThread {
                     switch (msg.what) {
 
                         case MSG_EVENT:
-                            engine.sendToPlatforms((Event) msg.obj);
+                            engine.sendToPlatforms((Event) msg.obj, true);
                             break;
 
                         case MSG_EVENT_PERIODIC:
                             if (msg.arg2 != FLAG_EVENT_SCHEDULE) {
-                                engine.sendToPlatforms((Event) msg.obj);
+                                engine.sendToPlatforms((Event) msg.obj, true);
                             }
                             scheduleNextMessage(msg);
                             break;

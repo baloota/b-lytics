@@ -60,6 +60,10 @@ public class BLytics {
         engine.track(event);
     }
 
+    public void trackWithoutSession(@NonNull Event event) {
+        engine.trackWithoutSession(event);
+    }
+
     public void track(String event) {
         track(event, new Bundle());
     }

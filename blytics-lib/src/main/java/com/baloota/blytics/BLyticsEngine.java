@@ -128,9 +128,12 @@ class BLyticsEngine {
         event.setParam(PARAM_SESSION_FOREGROUND, session.isForegroundSession());
     }
 
-    void sendToPlatforms(Event event) {
+    void sendToPlatforms(Event event, boolean withSession) {
 
-        addSessionParams(event);
+        if (withSession) {
+            addSessionParams(event);
+        }
+
         addCounters(event);
         addReferencedCounters(event);
         addReferencedProperties(event);
@@ -318,5 +321,9 @@ class BLyticsEngine {
         sessionThread.stopSession();
         sessionThread = null;
         onSessionFinished();
+    }
+
+    public void trackWithoutSession(Event event) {
+        sendToPlatforms(event, false);
     }
 }
