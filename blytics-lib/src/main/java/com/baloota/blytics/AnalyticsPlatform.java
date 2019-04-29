@@ -24,4 +24,17 @@ public abstract class AnalyticsPlatform {
     public abstract void setUserId(@NonNull String userId);
 
     public abstract void setUserProperty(String property, String value);
+
+    public Bundle ensureParamsLength(Bundle params, int maxLength) {
+        for (String key : params.keySet()) {
+            if (params.get(key) instanceof String) {
+                String value = params.getString(key);
+                if (value != null && value.length() > maxLength) {
+                    params.putString(key, value.substring(0, maxLength));
+                }
+            }
+        }
+        return params;
+    }
+
 }

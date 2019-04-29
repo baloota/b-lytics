@@ -15,6 +15,8 @@ import com.google.firebase.analytics.FirebaseAnalytics;
  */
 public class FirebasePlatform extends AnalyticsPlatform {
 
+    private static final int MAX_PARAM_LENGTH = 100;
+
     private FirebaseAnalytics analytics;
 
     @Override
@@ -40,7 +42,7 @@ public class FirebasePlatform extends AnalyticsPlatform {
 
     @Override
     public void track(@NonNull String event, @NonNull Bundle params) {
-        analytics.logEvent(event, params);
+        analytics.logEvent(event, ensureParamsLength(params, MAX_PARAM_LENGTH));
     }
 
     @Override

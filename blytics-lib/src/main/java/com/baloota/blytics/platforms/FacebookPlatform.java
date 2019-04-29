@@ -19,6 +19,8 @@ import com.facebook.appevents.AppEventsLogger;
  */
 public class FacebookPlatform extends AnalyticsPlatform {
 
+    private static final int MAX_PARAM_LENGTH = 100;
+
     private AppEventsLogger logger;
     private Application application;
 
@@ -56,7 +58,7 @@ public class FacebookPlatform extends AnalyticsPlatform {
 
     @Override
     public void track(@NonNull String event, @NonNull Bundle params) {
-        logger.logEvent(event, params);
+        logger.logEvent(event, ensureParamsLength(params, MAX_PARAM_LENGTH));
     }
 
     @Override
