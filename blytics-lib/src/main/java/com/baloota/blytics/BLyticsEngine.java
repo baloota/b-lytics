@@ -129,23 +129,28 @@ class BLyticsEngine {
     }
 
     void sendToPlatforms(Event event, boolean withSession) {
+        try {
 
-        if (withSession) {
-            addSessionParams(event);
-        }
+            if (withSession) {
+                addSessionParams(event);
+            }
 
-        addCounters(event);
-        addReferencedCounters(event);
-        addReferencedProperties(event);
+            addCounters(event);
+            addReferencedCounters(event);
+            addReferencedProperties(event);
 
-        String eventName = event.getName();
+            String eventName = event.getName();
 
-        if (!TextUtils.isEmpty(prefix)) {
-            eventName = prefix + eventName;
-        }
+            if (!TextUtils.isEmpty(prefix)) {
+                eventName = prefix + eventName;
+            }
 
-        for (AnalyticsPlatform platform : platforms) {
-            platform.track(eventName, event.getParams());
+            for (AnalyticsPlatform platform : platforms) {
+                platform.track(eventName, event.getParams());
+            }
+
+        } catch (Throwable e) {
+            Log.e("BLytics", "Failed to send event: " + event.getName(), e);
         }
     }
 
