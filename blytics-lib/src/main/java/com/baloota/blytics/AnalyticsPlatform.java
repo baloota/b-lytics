@@ -6,6 +6,9 @@ import android.support.annotation.NonNull;
 
 import com.baloota.blytics.model.Session;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by Sergey B on 10.05.2018.
  */
@@ -35,6 +38,17 @@ public abstract class AnalyticsPlatform {
             }
         }
         return params;
+    }
+
+    public Map<String, String> asMap(Bundle params) {
+
+        Map<String, String> result = new HashMap<>();
+
+        for (String key : params.keySet()) {
+            result.put(key, String.valueOf(params.get(key)));
+        }
+
+        return result;
     }
 
 }
