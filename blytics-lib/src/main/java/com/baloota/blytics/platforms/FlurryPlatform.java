@@ -13,6 +13,11 @@ public class FlurryPlatform extends AnalyticsPlatform {
     private Application application;
 
     @Override
+    public String getName() {
+        return "Flurry";
+    }
+
+    @Override
     public boolean isEnabled(@NonNull Application application) {
 
         boolean enabled = false;
@@ -27,7 +32,8 @@ public class FlurryPlatform extends AnalyticsPlatform {
     }
 
     @Override
-    public void initialize(@NonNull Application application) {
+    public void initialize(@NonNull Application application, boolean debug) {
+        super.initialize(application, debug);
         this.application = application;
     }
 

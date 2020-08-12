@@ -20,6 +20,11 @@ public class FirebasePlatform extends AnalyticsPlatform {
     private FirebaseAnalytics analytics;
 
     @Override
+    public String getName() {
+        return "Firebase";
+    }
+
+    @Override
     public boolean isEnabled(@NonNull Application application) {
 
         boolean enabled = false;
@@ -35,7 +40,8 @@ public class FirebasePlatform extends AnalyticsPlatform {
 
     @SuppressLint("MissingPermission")
     @Override
-    public void initialize(@NonNull Application application) {
+    public void initialize(@NonNull Application application, boolean debug) {
+        super.initialize(application, debug);
         analytics = FirebaseAnalytics.getInstance(application);
         Log.i("FirebasePlatform", "Initialized");
     }

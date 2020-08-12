@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.baloota.blytics.AnalyticsPlatform;
-import com.baloota.blytics.BuildConfig;
 import com.baloota.blytics.model.Session;
 import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
@@ -25,6 +24,11 @@ public class FacebookPlatform extends AnalyticsPlatform {
     private Application application;
 
     @Override
+    public String getName() {
+        return "Facebook";
+    }
+
+    @Override
     public boolean isEnabled(@NonNull Application application) {
         this.application = application;
 
@@ -39,12 +43,13 @@ public class FacebookPlatform extends AnalyticsPlatform {
     }
 
     @Override
-    public void initialize(@NonNull Application application) {
+    public void initialize(@NonNull Application application, boolean debug) {
+        super.initialize(application, debug);
         if (FacebookSdk.isInitialized()) {
             AppEventsLogger.activateApp(application);
             logger = AppEventsLogger.newLogger(application);
 
-            if (BuildConfig.DEBUG) {
+            if (debug) {
                 FacebookSdk.setIsDebugEnabled(true);
                 FacebookSdk.addLoggingBehavior(LoggingBehavior.APP_EVENTS);
             }

@@ -14,9 +14,15 @@ import java.util.Map;
  */
 public abstract class AnalyticsPlatform {
 
+    protected boolean debug = false;
+
+    public abstract String getName();
+
     public abstract boolean isEnabled(@NonNull Application application);
 
-    public abstract void initialize(@NonNull Application application);
+    public void initialize(@NonNull Application application, boolean debug) {
+        this.debug = debug;
+    }
 
     public abstract void track(@NonNull String event, @NonNull Bundle params);
 

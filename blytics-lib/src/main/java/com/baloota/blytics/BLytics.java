@@ -14,11 +14,9 @@ public class BLytics {
 
     private static BLytics INSTANCE;
 
-    private final Application application;
     private final BLyticsEngine engine;
 
     private BLytics(Application application, LifecycleOwner lifecycleOwner) {
-        this.application = application;
         this.engine = new BLyticsEngine(application, lifecycleOwner);
     }
 
@@ -26,18 +24,17 @@ public class BLytics {
         return INSTANCE;
     }
 
-    public static void init(Application application, String eventPrefix) {
-        INSTANCE = new BLytics(application, null);
-        INSTANCE.engine.initialize(eventPrefix);
+    public static void init(Application application, String eventPrefix, boolean debug) {
+        init(application, null, eventPrefix, debug);
     }
 
-    public static void init(Application application, LifecycleOwner lifecycleOwner, String eventPrefix) {
+    public static void init(Application application, LifecycleOwner lifecycleOwner, String eventPrefix, boolean debug) {
         INSTANCE = new BLytics(application, lifecycleOwner);
-        INSTANCE.engine.initialize(eventPrefix);
+        INSTANCE.engine.initialize(eventPrefix, debug);
     }
 
     public static void init(Application application) {
-        init(application, null);
+        init(application, null, false);
     }
 
     public synchronized BLytics getInstance() {

@@ -58,7 +58,7 @@ class BLyticsEngine {
         startLifecycleObserver(lifecycleOwner);
     }
 
-    public void initialize(String eventPrefix) {
+    public void initialize(String eventPrefix, boolean debug) {
         Log.i("BLytics", "Initializing...");
 
         prefix = eventPrefix;
@@ -67,7 +67,7 @@ class BLyticsEngine {
 
         for (AnalyticsPlatform platform : platforms) {
             try {
-                platform.initialize(application);
+                platform.initialize(application, debug);
             } catch (Throwable e) {
                 Log.e("BLytics", "Failed to initialize platform");
             }
@@ -148,7 +148,11 @@ class BLyticsEngine {
             }
 
             for (AnalyticsPlatform platform : platforms) {
-                platform.track(eventName, event.getParams());
+                try {
+                    platform.track(eventName, event.getParams());
+                } catch (Throwable e) {
+                    Log.e("BLytics", "Failed to send event: " + event.getName() + " to platform " + platform.toString(), e);
+                }
             }
 
         } catch (Throwable e) {
