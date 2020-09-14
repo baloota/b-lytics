@@ -26,11 +26,11 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'android.arch.lifecycle:runtime:1.1.1'
     implementation 'android.arch.lifecycle:extensions:1.1.1'
     annotationProcessor 'android.arch.lifecycle:compiler:1.1.1'
-    compileOnly 'com.facebook.android:facebook-android-sdk:5.13.0'
-    compileOnly 'com.google.firebase:firebase-core:17.2.1'
+    compileOnly 'com.facebook.android:facebook-android-sdk:5.15.3'
+    compileOnly 'com.google.firebase:firebase-core:17.5.0'
     compileOnly 'com.flurry.android:analytics:12.1.0@aar'
 }

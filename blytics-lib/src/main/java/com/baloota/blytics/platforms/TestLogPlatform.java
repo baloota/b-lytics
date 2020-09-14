@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.baloota.blytics.AnalyticsPlatform;
-import com.baloota.blytics.BuildConfig;
 import com.baloota.blytics.model.Session;
 
 /**
@@ -15,12 +14,18 @@ import com.baloota.blytics.model.Session;
 public class TestLogPlatform extends AnalyticsPlatform {
 
     @Override
-    public boolean isEnabled(@NonNull Application application) {
-        return BuildConfig.DEBUG;
+    public String getName() {
+        return "Test";
     }
 
     @Override
-    public void initialize(@NonNull Application application) {
+    public boolean isEnabled(@NonNull Application application) {
+        return debug;
+    }
+
+    @Override
+    public void initialize(@NonNull Application application, boolean debug) {
+        super.initialize(application, debug);
         Log.i("TestLogPlatform", "Initialized");
     }
 

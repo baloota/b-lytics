@@ -32,7 +32,9 @@ class SessionThread extends HandlerThread {
     }
 
     public void startSession() {
-        start();
+        if (getState() == State.NEW) {
+            start();
+        }
     }
 
     public void stopSession() {

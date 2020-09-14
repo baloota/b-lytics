@@ -46,6 +46,7 @@ class BLyticsEngine {
 
     private List<AnalyticsPlatform> platforms = Collections.emptyList();
     private String prefix;
+    private LifecycleObserver lifecycleObserver;
 
     BLyticsEngine(Application application, LifecycleOwner lifecycleOwner) {
         this.application = application;
@@ -234,21 +235,35 @@ class BLyticsEngine {
             isForegroundSession = ! (lifecycleOwner instanceof LifecycleService);
         }
 
-        lifecycleOwner.getLifecycle().addObserver(new LifecycleObserver() {
+        if (lifecycleObserver == null) {
 
-            @OnLifecycleEvent(Lifecycle.Event.ON_START)
-            public void onEnterForeground() {
-                Log.i("BLytics", "App is FOREGROUND");
-                startSession(isForegroundSession);
-            }
+            lifecycleObserver = new LifecycleObserver() {
 
-            @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-            public void onEnterBackground() {
-                Log.i("BLytics", "App is BACKGROUND");
-                stopSession();
-            }
+                private boolean foreground = false;
 
-        });
+                @OnLifecycleEvent(Lifecycle.Event.ON_START)
+                public void onEnterForeground() {
+                    if (!foreground) {
+                        Log.i("BLytics", "App is FOREGROUND");
+                        startSession(isForegroundSession);
+                        foreground = true;
+                    }
+                }
+
+                @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+                public void onEnterBackground() {
+                    if (foreground) {
+                        Log.i("BLytics", "App is BACKGROUND");
+                        stopSession();
+                        foreground = false;
+                    }
+                }
+
+            };
+
+            lifecycleOwner.getLifecycle().addObserver(lifecycleObserver);
+        }
+
     }
 
     public void updateCounter(String name, int type) {
