@@ -245,7 +245,12 @@ class BLyticsEngine {
                 public void onEnterForeground() {
                     if (!foreground) {
                         Log.i("BLytics", "App is FOREGROUND");
-                        startSession(isForegroundSession);
+                        try {
+                            startSession(isForegroundSession);
+                        } catch (Throwable e) {
+                            Log.e("Blytics", "Start session failed", e);
+                        }
+
                         foreground = true;
                     }
                 }
@@ -254,7 +259,11 @@ class BLyticsEngine {
                 public void onEnterBackground() {
                     if (foreground) {
                         Log.i("BLytics", "App is BACKGROUND");
-                        stopSession();
+                        try {
+                            stopSession();
+                        } catch (Throwable e) {
+                            Log.e("Blytics", "Stop session failed", e);
+                        }
                         foreground = false;
                     }
                 }
