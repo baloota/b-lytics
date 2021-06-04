@@ -18,7 +18,6 @@ import com.baloota.blytics.model.Counter;
 import com.baloota.blytics.model.Event;
 import com.baloota.blytics.model.Property;
 import com.baloota.blytics.model.Session;
-import com.baloota.blytics.platforms.FacebookPlatform;
 import com.baloota.blytics.platforms.FirebasePlatform;
 import com.baloota.blytics.platforms.FlurryPlatform;
 import com.baloota.blytics.platforms.TestLogPlatform;
@@ -89,7 +88,6 @@ class BLyticsEngine {
 
     private List<AnalyticsPlatform> getPlatforms() {
         List<AnalyticsPlatform> platforms = new ArrayList<>();
-        platforms.add(new FacebookPlatform());
         platforms.add(new FirebasePlatform());
         platforms.add(new FlurryPlatform());
         platforms.add(new TestLogPlatform());
